@@ -1,0 +1,29 @@
+{
+  "name": "yakuzo",
+  "version": "1.0.0",
+  "description": "A powerful lavalink wrapper around shoukaku",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SilentKiller345/yakuzo.git"
+  },
+  "keywords": [
+    "lavalink",
+    "lavalink-wrapper",
+    "discord.js"
+  ],
+  "author": "Ichigo Kurosaki",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SilentKiller345/yakuzo/issues"
+  },
+  "homepage": "https://github.com/SilentKiller345/yakuzo#readme",
+  "dependencies": {
+    "discord.js": "^14.8.0",
+    "shoukaku": "^3.4.2",
+    "undici": "^5.28.1"
+  }
+}
