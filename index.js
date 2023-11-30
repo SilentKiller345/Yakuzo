@@ -1,5 +1,5 @@
 module.exports = {
-	Yakuzo: require('./Yakuzo'),
+	Shunko: require('./Shunko'),
 	Player: require('./Player'),
 	Queue: require('./Queue'),
 	Structure: require('./Structure')

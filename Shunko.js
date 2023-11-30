@@ -3,29 +3,29 @@ const { Shoukaku } = require('shoukaku');
 const Player = require('./Player');
 const Spotify = require('./module/Spotify');
 
-class Yakuzo extends EventEmitter {
+class Shunko extends EventEmitter {
 	/**
 	 * @param {*} client
 	 * @param {import('shoukaku').NodeOption[]} nodes
-	 * @param {YakuzoOptions} options
+	 * @param {ShunkoOptions} options
 	 */
 	constructor(options, connector) {
 		super();
 
-		if (typeof options !== 'object') return console.log("[Yakuzo] => YakuzoOptions must be an object");
-		if (!options.nodes) return console.log('[Yakuzo] => YakuzoOptions must contain a nodes property');
-		if (!Array.isArray(options.nodes)) return console.log('[Yakuzo] => YakuzoOptions.nodes must be an array');
-		if (options.nodes.length === 0) return console.log('[Yakuzo] => YakuzoOptions.nodes must contain at least one node');
-		if (!options.shoukakuoptions) return console.log('[Yakuzo] => YakuzoOptions must contain a shoukakuoptions property');
+		if (typeof options !== 'object') return console.log("[Shunko] => ShunkoOptions must be an object");
+		if (!options.nodes) return console.log('[Shunko] => ShunkoOptions must contain a nodes property');
+		if (!Array.isArray(options.nodes)) return console.log('[Shunko] => ShunkoOptions.nodes must be an array');
+		if (options.nodes.length === 0) return console.log('[Shunko] => ShunkoOptions.nodes must contain at least one node');
+		if (!options.shoukakuoptions) return console.log('[Shunko] => ShunkoOptions must contain a shoukakuoptions property');
 		if (options?.spotify) {
-			if (!options.spotify[0]?.ClientID) return console.log('[Yakuzo] => YakuzoOptions.spotify must have ClientID');
-			if (!options.spotify[0]?.ClientSecret) return console.log('[Yakuzo] => YakuzoOptions.spotify must have ClientSecret');
+			if (!options.spotify[0]?.ClientID) return console.log('[Shunko] => ShunkoOptions.spotify must have ClientID');
+			if (!options.spotify[0]?.ClientSecret) return console.log('[Shunko] => ShunkoOptions.spotify must have ClientSecret');
 
 			if (options.spotify?.length === 1) {
 				this.spotify = new Spotify({ ClientID: options.spotify[0]?.ClientID, ClientSecret: options.spotify[0]?.ClientSecret });
 			} else {
 				for (const client of options.spotify) { this.spotify = new Spotify(client); }
-				console.warn("[Yakuzo Spotify] => You are using the multi client mode, sometimes you can STILL GET RATE LIMITED.");
+				console.warn("[Shunko Spotify] => You are using the multi client mode, sometimes you can STILL GET RATE LIMITED.");
 			}
 		}
 		this.shoukaku = new Shoukaku(connector, options.nodes, options.shoukakuoptions);
@@ -35,7 +35,7 @@ class Yakuzo extends EventEmitter {
 
 	/**
 	 * Create a new player.
-	 * @param {YakuzoCreatePlayerOptions} options
+	 * @param {ShunkoCreatePlayerOptions} options
 	 * @returns {Promise<Player>}
 	 */
 	async createPlayer(options) {
@@ -48,7 +48,7 @@ class Yakuzo extends EventEmitter {
 		} else { 
 			node = this.shoukaku.getNode('auto'); 
 		}
-		if (node === null) return console.log('[Yakuzo] => No nodes are existing.');
+		if (node === null) return console.log('[Shunko] => No nodes are existing.');
 
 		const ShoukakuPlayer = await node.joinChannel({
 			guildId: options.guildId,
@@ -56,22 +56,22 @@ class Yakuzo extends EventEmitter {
 			shardId: options.shardId,
 			deaf: options.deaf || true
 		});
-		const YakuzoPlayer = new Player(this, {
+		const ShunkoPlayer = new Player(this, {
 			guildId: options.guildId,
 			voiceId: options.voiceId,
 			textId: options.textId,
 			volume: `${options.volume}` || '80',
 			ShoukakuPlayer
 		});
-		this.players.set(options.guildId, YakuzoPlayer);
-		this.emit('PlayerCreate', YakuzoPlayer);
-		return YakuzoPlayer;
+		this.players.set(options.guildId, ShunkoPlayer);
+		this.emit('PlayerCreate', ShunkoPlayer);
+		return ShunkoPlayer;
 	}
 
 	getLeastUsedNode() {
 		const nodes = [...this.shoukaku.nodes.values()];
 		const onlineNodes = nodes.filter((node) => node);
-		if (!onlineNodes.length) return console.log("[Yakuzo] => No nodes are online.")
+		if (!onlineNodes.length) return console.log("[Shunko] => No nodes are online.")
 		return onlineNodes.reduce((a, b) => (a.players.size < b.players.size ? a : b));
 	}
 
@@ -95,12 +95,12 @@ class Yakuzo extends EventEmitter {
 	/**
 	 * Search a song in Lavalink providers.
 	 * @param {string} query
-	 * @param {YakuzoSearchOptions} options
+	 * @param {ShunkoSearchOptions} options
 	 * @returns {Promise<shoukaku.LavalinkResponse>}
 	 */
 	async search(query, options = { engine: this.defaultSearchEngine }) {
 		if (/^https?:\/\//.test(query)) {
-			if (options.engine === 'YakuzoSpotify') {
+			if (options.engine === 'ShunkoSpotify') {
 				if (this.spotify.check(query)) {
 					return await this.spotify.resolve(query, options.requester);
 				}
@@ -108,7 +108,7 @@ class Yakuzo extends EventEmitter {
 			}
 			return await this.shoukaku.getNode()?.rest.resolve(query, options.requester);
 		}
-		if (options.engine === 'YakuzoSpotify') return await this.spotify.search(query, options.requester);
+		if (options.engine === 'ShunkoSpotify') return await this.spotify.search(query, options.requester);
 		const engineMap = {
 			youtube: 'ytsearch',
 			youtubemusic: 'ytmsearch',
@@ -122,10 +122,10 @@ class Yakuzo extends EventEmitter {
 
 	/**
 	 * Add a listener to a event.
-	 * @template {keyof YakuzoEvents} K
+	 * @template {keyof ShunkoEvents} K
 	 * @param {K} event
-	 * @param {(...args: YakuzoEvents[K]) => any} listener
-	 * @returns {Yakuzo}
+	 * @param {(...args: ShunkoEvents[K]) => any} listener
+	 * @returns {Shunko}
 	 */
 	on(event, listener) {
 		super.on(event, listener);
@@ -138,10 +138,10 @@ class Yakuzo extends EventEmitter {
 
 	/**
 	 * Add a "unique" listener to an event.
-	 * @template {keyof YakuzoEvents} K
+	 * @template {keyof ShunkoEvents} K
 	 * @param {K} event
-	 * @param {(...args: YakuzoEvents[K]) => any} listener
-	 * @returns {Yakuzo}
+	 * @param {(...args: ShunkoEvents[K]) => any} listener
+	 * @returns {Shunko}
 	 */
 	once(event, listener) {
 		super.once(event, listener);
@@ -149,15 +149,15 @@ class Yakuzo extends EventEmitter {
 	}
 }
 
-module.exports = Yakuzo;
+module.exports = Shunko;
 
 /**
- * @typedef YakuzoOptions
- * @property {YakuzoSpotifyOptions} [spotify]
+ * @typedef ShunkoOptions
+ * @property {ShunkoSpotifyOptions} [spotify]
  */
 
 /**
- * @typedef YakuzoSpotifyOptions
+ * @typedef ShunkoSpotifyOptions
  * @property {number} playlistLimit
  * @property {number} albumLimit
  * @property {number} artistLimit
@@ -167,7 +167,7 @@ module.exports = Yakuzo;
  */
 
 /**
- * @typedef YakuzoCreatePlayerOptions
+ * @typedef ShunkoCreatePlayerOptions
  * @prop {string} guildId
  * @prop {string} voiceId
  * @prop {string} textId
@@ -177,12 +177,12 @@ module.exports = Yakuzo;
  */
 
 /**
- * @typedef YakuzoSearchOptions
+ * @typedef ShunkoSearchOptions
  * @prop {'ytsearch' | 'ytmsearch' | 'spsearch' | 'scsearch'} [engine]
  */
 
 /**
- * @typedef YakuzoEvents
+ * @typedef ShunkoEvents
  * @prop {[player: Player, track: shoukaku.Track]} trackStart
  * @prop {[player: Player, track: shoukaku.Track]} trackEnd
  * @prop {[player: Player]} queueEnd

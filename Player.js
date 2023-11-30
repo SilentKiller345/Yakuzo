@@ -1,17 +1,17 @@
 const Queue = require('./Queue');
-const Yakuzo = require('./Yakuzo');
+const Shunko = require('./Shunko');
 const shoukaku = require('shoukaku');
 const Filters = require('./Filters');
 
 class Player {
 	/**
 	 *
-	 * @param {Yakuzo} manager
+	 * @param {Shunko} manager
 	 * @param {PlayerOptions} options
 	 */
 
 	constructor(manager, options) {
-		/** @type {Yakuzo} */
+		/** @type {Shunko} */
 		this.manager = manager;
 		
 		/** @type {string} */
@@ -113,7 +113,7 @@ class Player {
 	 * @returns {Player}
 	 */
 	pause(pause = true) {
-		if (typeof pause !== 'boolean') throw new RangeError('[Yakuzo] => Pause function must be pass with boolean value.');
+		if (typeof pause !== 'boolean') throw new RangeError('[Shunko] => Pause function must be pass with boolean value.');
 		if (this.paused === pause || !this.queue.totalSize) return this;
 		this.paused = pause;
 		this.playing = !pause;
@@ -136,7 +136,7 @@ class Player {
 	 * @returns {Player}
 	 */
 	seekTo(position) {
-		if (Number.isNaN(position)) throw new RangeError('[Yakuzo] => seek Position must be a number.');
+		if (Number.isNaN(position)) throw new RangeError('[Shunko] => seek Position must be a number.');
 		this.shoukaku.seekTo(position);
 		return this;
 	}
@@ -147,7 +147,7 @@ class Player {
 	 * @returns {Player}
 	 */
 	setVolume(volume) {
-		if (Number.isNaN(volume)) throw new RangeError('[Yakuzo] => Volume level must be a number.');
+		if (Number.isNaN(volume)) throw new RangeError('[Shunko] => Volume level must be a number.');
 		this.shoukaku.setVolume(volume / 100);
 		this.volume = volume;
 		return this;
@@ -159,7 +159,7 @@ class Player {
 	 * @returns {Player}
 	 */
 	setTextChannel(textId) {
-		if (typeof textId !== 'string') throw new RangeError('[Yakuzo] => textId must be a string.');
+		if (typeof textId !== 'string') throw new RangeError('[Shunko] => textId must be a string.');
 		this.textId = textId;
 		return this;
 	}
@@ -170,7 +170,7 @@ class Player {
 	 * @returns {Player}
 	 */
 	setVoiceChannel(voiceId) {
-		if (typeof voiceId !== 'string') throw new RangeError('[Yakuzo] => voiceId must be a string.');
+		if (typeof voiceId !== 'string') throw new RangeError('[Shunko] => voiceId must be a string.');
 		this.voiceId = voiceId;
 		return this;
 	}
@@ -184,12 +184,12 @@ class Player {
 	/**
 	 * Search a song in Lavalink providers.
 	 * @param {string} query
-	 * @param {Yakuzo.YakuzoSearchOptions} options
+	 * @param {Shunko.ShunkoSearchOptions} options
 	 * @returns {Promise<shoukaku.LavalinkResponse>}
 	 */
 	async search(query, options = { engine: this.manager.defaultSearchEngine }) {
 		if (/^https?:\/\//.test(query)) {
-			if (options.engine === 'YakuzoSpotify') {
+			if (options.engine === 'ShunkoSpotify') {
 				if (this.manager.spotify.check(query)) {
 				    return await this.manager.spotify.resolve(query);
 				}
@@ -197,7 +197,7 @@ class Player {
 			}
 			return await this.shoukaku.node.rest.resolve(query);
 		}
-		if (options.engine === 'YakuzoSpotify') return await this.manager.spotify.search(query);
+		if (options.engine === 'ShunkoSpotify') return await this.manager.spotify.search(query);
 		const engineMap = {
 			youtube: 'ytsearch',
 			youtubemusic: 'ytmsearch',

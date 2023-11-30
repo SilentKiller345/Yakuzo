@@ -1,12 +1,12 @@
 const { fetch } = require('undici');
-const Yakuzo = require('../Yakuzo');
+const Shunko = require('../Shunko');
 const shoukaku = require('shoukaku');
 const Pattern =
 	/^(?:https:\/\/open\.spotify\.com\/(?:user\/[A-Za-z0-9]+\/)?|spotify:)(album|playlist|track|artist)(?:[/:])([A-Za-z0-9]+).*$/;
 
 class Spotify {
 	/**
-	 * @param {Yakuzo} manager
+	 * @param {Shunko} manager
 	 */
 	constructor(manager = { ClientID: string, ClientSecret: string }) {
 		/** @private */
