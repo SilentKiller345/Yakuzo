@@ -312,7 +312,7 @@ class Spotify {
 	 */
 	async buildUnresolved(track) {
 		if (!track) throw new ReferenceError('The Spotify track object was not provided');
-
+		
 		return new Object({
 			track: '',
 			info: {
@@ -348,7 +348,7 @@ class Spotify {
 	async buildTrack(unresolvedTrack) {
 		const lavaTrack = await this.fetchMetaData(unresolvedTrack);
 		if (lavaTrack) {
-			unresolvedTrack.track = lavaTrack.track;
+			unresolvedTrack.track = lavaTrack.encoded;
 			unresolvedTrack.info.identifier = lavaTrack.info.identifier;
 			return unresolvedTrack;
 		}

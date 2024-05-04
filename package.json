@@ -1,6 +1,6 @@
 {
   "name": "shunko",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A powerful lavalink wrapper around shoukaku",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/SilentKiller345/shunko.git",
   "dependencies": {
-    "shoukaku": "^3.4.2",
+    "shoukaku": "^4.0.1",
     "undici": "^5.28.1"
   }
 }

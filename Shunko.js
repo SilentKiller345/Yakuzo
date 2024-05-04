@@ -46,16 +46,17 @@ class Shunko extends EventEmitter {
 		if (options.loadBalancer === true) {
 			node = this.getLeastUsedNode();
 		} else { 
-			node = this.shoukaku.getNode('auto'); 
+			node = this.shoukaku.options.nodeResolver(this.shoukaku.nodes)
 		}
 		if (node === null) return console.log('[Shunko] => No nodes are existing.');
 
-		const ShoukakuPlayer = await node.joinChannel({
+		const ShoukakuPlayer = await this.shoukaku.joinVoiceChannel({
 			guildId: options.guildId,
 			channelId: options.voiceId,
 			shardId: options.shardId,
 			deaf: options.deaf || true
 		});
+
 		const ShunkoPlayer = new Player(this, {
 			guildId: options.guildId,
 			voiceId: options.voiceId,
@@ -88,6 +89,7 @@ class Shunko extends EventEmitter {
 			result = await node.rest.resolve(`ytsearch:${query}`);
 			if (!result || !result.tracks.length) return;
 		}
+		console.log(result)
 		track.track = result.tracks[0].track;
 		return track;
 	}

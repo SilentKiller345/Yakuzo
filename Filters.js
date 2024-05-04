@@ -1,16 +1,13 @@
 class Filters {
-    constructor(guild, node) {
+    constructor(guild, node, player) {
         //Private Filter Boolean
         this.guild = guild;
+        this.player = player;
         this.node = node;
         this._resetnode = function() {
                 this.filters = new Filters();
-                this.node.queue.add({
-                  op: "filters" /* FILTERS */,
-                  guildId: this.guild
-                });
-                return this;
-              
+                this.player.clearFilters();
+                return this;             
         };
         this._nightcore = false;
         this._vaporwave = false;
@@ -24,14 +21,7 @@ class Filters {
         this._tremolo = false;
         //Private Filter Data
 
-
-        this._resetData = {
-            op: "filters",
-            guildId: this.guild,
-        };
         this._nightcoreData = {
-            op: "filters",
-            guildId: this.guild,
             timescale: {
                 speed: 1.2999999523162842,
                 pitch: 1.2999999523162842,
@@ -39,8 +29,6 @@ class Filters {
             },
         };
         this._vaporwaveData = {
-            op: "filters",
-            guildId: this.guild,
             equalizer: [
                 { band: 1, gain: 0.3 },
                 { band: 0, gain: 0.3 },
@@ -49,8 +37,6 @@ class Filters {
             tremolo: { depth: 0.3, frequency: 14 },
         };
         this._bassboostData = {
-            op: "filters",
-            guildId: this.guild,
             equalizer: [
                 { band: 0, gain: 0.6 },
                 { band: 1, gain: 0.67 },
@@ -69,8 +55,6 @@ class Filters {
             ],
         };
         this._popData = {
-            op: "filters",
-            guildId: this.guild,
             equalizer: [
                 { band: 0, gain: 0.65 },
                 { band: 1, gain: 0.45 },
@@ -89,15 +73,11 @@ class Filters {
             ],
         };
         this._softData = {
-            op: "filters",
-            guildId: this.guild,
             lowPass: {
                 smoothing: 20.0
             }
         };
         this._treblebassData = {
-            op: "filters",
-            guildId: this.guild,
             equalizer: [
                 { band: 0, gain: 0.6 },
                 { band: 1, gain: 0.67 },
@@ -116,15 +96,11 @@ class Filters {
             ],
         };
         this._eightDData = {
-            op: "filters",
-            guildId: this.guild,
             rotation: {
                 rotationHz: 0.2
             }
         };
         this._karaokeData = {
-            op: "filters",
-            guildId: this.guild,
             karaoke: {
                 level: 1.0,
                 monoLevel: 1.0,
@@ -133,16 +109,12 @@ class Filters {
             },
         };
         this._vibratoData = {
-            op: "filters",
-            guildId: this.guild,
             vibrato: {
                 frequency: 10,
                 depth: 0.9
             }
         };
         this._tremoloData = {
-            op: "filters",
-            guildId: this.guild,
             tremolo: {
                 frequency: 10,
                 depth: 0.5
@@ -153,6 +125,8 @@ class Filters {
     set nightcore(status) {
         this._nightcore = status;
         if (status) {
+//            this._resetnode();
+            this.player.setFilters({timescale: this._nightcoreData.timescale});
             this._vaporwave = false;
             this._bassboost = false;
             this._soft = false;
@@ -162,7 +136,6 @@ class Filters {
             this._karaoke = false;
             this._vibrato = false;
             this._tremolo = false;
-            this.node.queue.add(this._nightcoreData);
         }
         else
             this._resetnode();
@@ -170,6 +143,8 @@ class Filters {
     set vaporwave(status) {
         this._vaporwave = status;
         if (status) {
+          this._resetnode();
+            this.player.setFilters({equalizer: this._vaporwaveData.equalizer, timescale: this._vaporwaveData.timescale, tremolo: this._vaporwaveData.tremolo})
             this._bassboost = false;
             this._nightcore = false;
             this._soft = false;
@@ -179,7 +154,6 @@ class Filters {
             this._karaoke = false;
             this._vibrato = false;
             this._tremolo = false;
-            this.node.queue.add(this._vaporwaveData);
         }
         else
             this._resetnode();
@@ -187,6 +161,8 @@ class Filters {
     set bassboost(status) {
         this._bassboost = status;
         if (status) {
+            this._resetnode();
+            this.player.setEqualizer(this._bassboostData.equalizer);
             this._nightcore = false;
             this._vaporwave = false;
             this._soft = false;
@@ -196,7 +172,6 @@ class Filters {
             this._karaoke = false;
             this._vibrato = false;
             this._tremolo = false;
-            this.node.queue.add(this._bassboostData);
         }
         else
             this._resetnode();
@@ -204,6 +179,8 @@ class Filters {
     set pop(status) {
         this._pop = status;
         if (status) {
+            this._resetnode();
+            this.player.setEqualizer(this._popData.equalizer)
             this._nightcore = false;
             this._vaporwave = false;
             this._bassboost = false;
@@ -213,7 +190,6 @@ class Filters {
             this._karaoke = false;
             this._vibrato = false;
             this._tremolo = false;
-            this.node.queue.add(this._popData);
         }
         else
             this._resetnode();
@@ -221,6 +197,8 @@ class Filters {
     set soft(status) {
         this._soft = status;
         if (status) {
+            this._resetnode();
+            this.player.setFilters({lowPass: this._softData.lowPass})
             this._nightcore = false;
             this._vaporwave = false;
             this._bassboost = false;
@@ -230,7 +208,6 @@ class Filters {
             this._karaoke = false;
             this._vibrato = false;
             this._tremolo = false;
-            this.node.queue.add(this._softData);
         }
         else
             this._resetnode();
@@ -238,6 +215,8 @@ class Filters {
     set treblebass(status) {
         this._treblebass = status;
         if (status) {
+            this._resetnode();
+            this.player.setEqualizer(this._treblebassData.equalizer);
             this._nightcore = false;
             this._vaporwave = false;
             this._bassboost = false;
@@ -247,7 +226,6 @@ class Filters {
             this._karaoke = false;
             this._vibrato = false;
             this._tremolo = false;
-            this.node.queue.add(this._treblebassData);
         }
         else
             this._resetnode();
@@ -255,6 +233,8 @@ class Filters {
     set eightD(status) {
         this._eightD = status;
         if (status) {
+            this._resetnode();
+            this.player.setFilters({rotation: this._eightDData.rotation});
             this._nightcore = false;
             this._vaporwave = false;
             this._bassboost = false;
@@ -264,14 +244,15 @@ class Filters {
             this._karaoke = false;
             this._vibrato = false;
             this._tremolo = false;
-            this.node.queue.add(this._eightDData);
-        }
+            }
         else
             this._resetnode();
     }
     set karaoke(status) {
         this._karaoke = status;
         if (status) {
+            this._resetnode();
+            this.player.setFilters({karaoke: this._karaokeData.karaoke});
             this._nightcore = false;
             this._vaporwave = false;
             this._bassboost = false;
@@ -281,7 +262,7 @@ class Filters {
             this._eightD = false;
             this._vibrato = false;
             this._tremolo = false;
-            this.node.queue.add(this._karaokeData);
+            
         }
         else
             this._resetnode();
@@ -289,6 +270,8 @@ class Filters {
     set vibrato(status) {
         this._vibrato = status;
         if (status) {
+            this._resetnode();
+            this.player.setFilters({vibrato: this._vibratoData.vibrato});
             this._nightcore = false;
             this._vaporwave = false;
             this._bassboost = false;
@@ -298,7 +281,7 @@ class Filters {
             this._eightD = false;
             this._karaoke = false;
             this._tremolo = false;
-            this.node.queue.add(this._vibratoData);
+            
         }
         else
             this._resetnode();
@@ -306,6 +289,8 @@ class Filters {
     set tremolo(status) {
         this._tremolo = status;
         if (status) {
+            this._resetnode();
+            this.player.setFilters({tremolo: this._tremoloData.tremolo});
             this._nightcore = false;
             this._vaporwave = false;
             this._bassboost = false;
@@ -315,7 +300,7 @@ class Filters {
             this._eightD = false;
             this._karaoke = false;
             this._vibrato = false;
-            this.node.queue.add(this._tremoloData);
+            
         }
         else
             this._resetnode();
@@ -353,7 +338,7 @@ class Filters {
     }
     //Reset Everything
     _resetnode() {
-        this.node.queue.add(this._resetData);
+        this.player.clearFilters();
     }
     reset() {
         this._resetnode();

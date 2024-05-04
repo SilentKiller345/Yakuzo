@@ -13,7 +13,7 @@ class Player {
 	constructor(manager, options) {
 		/** @type {Shunko} */
 		this.manager = manager;
-		
+
 		/** @type {string} */
 		this.guildId = options.guildId;
 
@@ -45,16 +45,16 @@ class Player {
 
 		this.node = this.shoukaku.node;
 
-		this.node.isConnected = this.node.state === 1;
+		this.node.isConnected = this.node.state === 2;
 
-		this.filters = new Filters(this.guildId, this.shoukaku.node)
+		this.filters = new Filters(this.guildId, this.shoukaku.node, this.shoukaku)
 
 		this.trackRepeat = null;
 
 		this.queueRepeat = null;
 
 		this.nowPlayingMessage = null;
-		  
+
 		this.musicMessage = null;
 
 		this.setNowplayingMessage = this.shoukaku.setNowplayingMessage;
@@ -62,7 +62,7 @@ class Player {
 		this.setMusicMessage = this.shoukaku.setMusicMessage;
 
 		this.position = this.shoukaku.position;
-	
+
 		this[247] = false;
 
 		this.loop = "none";
@@ -98,9 +98,9 @@ class Player {
 			this.manager.emit('trackException', this, data);
 		});
 		this.shoukaku.on('update', (data) => {
-		 this.manager.emit('PlayerUpdate', this, data)
-		 this.position = data.state.position;
-		 this.ping = data.state.ping;
+			this.manager.emit('PlayerUpdate', this, data)
+			this.position = data.state.position;
+			this.ping = data.state.ping;
 		})
 
 		this.shoukaku.on('stuck', (data = TrackStuckEvent) => this.manager.emit('trackStuck', this, data));
@@ -148,7 +148,7 @@ class Player {
 	 */
 	setVolume(volume) {
 		if (Number.isNaN(volume)) throw new RangeError('[Shunko] => Volume level must be a number.');
-		this.shoukaku.setVolume(volume / 100);
+		this.shoukaku.setGlobalVolume(volume);
 		this.volume = volume;
 		return this;
 	}
@@ -180,7 +180,7 @@ class Player {
 	 * @param {LoopType} method
 	 * @returns {Player}
 	 */
-	
+
 	/**
 	 * Search a song in Lavalink providers.
 	 * @param {string} query
@@ -191,7 +191,7 @@ class Player {
 		if (/^https?:\/\//.test(query)) {
 			if (options.engine === 'ShunkoSpotify') {
 				if (this.manager.spotify.check(query)) {
-				    return await this.manager.spotify.resolve(query);
+					return await this.manager.spotify.resolve(query);
 				}
 				return await this.shoukaku.node.rest.resolve(query);
 			}
@@ -215,12 +215,21 @@ class Player {
 	 */
 	async play() {
 		if (!this.queue.length) return;
+
 		this.queue.current = this.queue.shift();
 		try {
-			if (!this.queue.current.track) this.queue.current = await this.manager.resolve(this.queue.current, this.shoukaku.node);
-			this.shoukaku
-				.setVolume(this.volume / 100)
-				.playTrack({ track: this.queue.current.track });
+		await this.shoukaku.setGlobalVolume(this.volume);
+
+		if (!this.queue.current.track && !this.queue.current.encoded) {
+			const t = await this.shoukaku.node.rest.resolve(`spsearch:${this.queue.current.info.title}`);
+			const track = t.data.shift();
+			this.queue.current.encoded = track.encoded;
+		}
+		if (this?.queue?.current?.encoded) {
+			await this.shoukaku.playTrack({ track: this.queue.current.encoded });
+		} else {
+			await this.shoukaku.playTrack({ track: this.queue.current.track });
+		}
 		} catch (e) {
 			this.manager.emit('trackError', this, this.queue.current, e);
 		}
@@ -233,18 +242,18 @@ class Player {
 	disconnect() {
 		this.pause(true);
 		const data = {
-            op: 4,
-            d: {
-                guild_id: this.guildId,
-                channel_id: null,
-                self_mute: false,
-                self_deaf: false,
-            },
-        };
-        const guild = this.manager.shoukaku.connector.client.guilds.cache.get(this.guildId);
-        if (guild) guild.shard.send(data);
-        this.voiceId = null;
-        return this;
+		    op: 4,
+		    d: {
+		        guild_id: this.guildId,
+		        channel_id: null,
+		        self_mute: false,
+		        self_deaf: false,
+		    },
+		};
+		const guild = this.manager.shoukaku.connector.client.guilds.cache.get(this.guildId);
+		if (guild) guild.shard.send(data);
+		this.voiceId = null;
+		return this;
 	}
 
 	stop() {
@@ -252,41 +261,41 @@ class Player {
 		this.DisableRepeat();
 		this.skip();
 		return this;
-	  }
+	}
 
-	  
+
 	TrackRepeat() {
 		this.loop_1 = 1;
 		this.loop = "track";
 		this.trackRepeat = true;
 		this.queueRepeat = false;
 		return this;
-	  }
-	
-	  QueueRepeat() {
+	}
+
+	QueueRepeat() {
 		this.loop_1 = 2;
 		this.loop = "queue"
 		this.queueRepeat = true;
 		this.trackRepeat = false;
 		return this;
-	  }
-	
-	  DisableRepeat() {
+	}
+
+	DisableRepeat() {
 		this.loop_1 = 0;
 		this.loop = "none"
 		this.trackRepeat = false;
 		this.queueRepeat = false;
 		return this;
-	  }
+	}
 
-	
+
 	/**
 	 * Destroy the player
 	 * @returns {void}
 	 */
 	destroy() {
 		this.disconnect();
-		this.shoukaku.connection.disconnect();
+		this.shoukaku.destroy();
 		this.shoukaku.removeAllListeners();
 		this.manager.players.delete(this.guildId);
 		this.manager.emit('playerDestroy', this);

@@ -20,6 +20,9 @@ A Simple but powerful Lavalink Client for your JavaScript Discord Bot!
 # 📖 Documentation
 - [Shoukaku Docs](https://deivu.github.io/Shoukaku).
 
+# Updates 
+- Shunko v2 now supports Lavalink version 4.
+
 # 📦 How to Install Shunko
 ```js
 Stable: "npm i npm i shunko"
