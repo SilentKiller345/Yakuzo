@@ -28,7 +28,12 @@ class Shunko extends EventEmitter {
 				console.warn("[Shunko Spotify] => You are using the multi client mode, sometimes you can STILL GET RATE LIMITED.");
 			}
 		}
-		this.shoukaku = new Shoukaku(connector, options.nodes, options.shoukakuoptions);
+		this.shoukaku = new Shoukaku(connector, options.nodes, Object.assign(options.shoukakuoptions, {
+			nodeResolver: nodes => [...nodes.values()]
+				.filter(node => node.state === 2)
+				.sort((a, b) => a.penalties - b.penalties)
+				.shift()
+		}));
 		this.players = new Map();
 		this.defaultSearchEngine = options?.defaultSearchEngine || 'youtube';
 	}
@@ -45,7 +50,7 @@ class Shunko extends EventEmitter {
 		let node;
 		if (options.loadBalancer === true) {
 			node = this.getLeastUsedNode();
-		} else { 
+		} else {
 			node = this.shoukaku.options.nodeResolver(this.shoukaku.nodes)
 		}
 		if (node === null) return console.log('[Shunko] => No nodes are existing.');
@@ -106,9 +111,9 @@ class Shunko extends EventEmitter {
 				if (this.spotify.check(query)) {
 					return await this.spotify.resolve(query, options.requester);
 				}
-				return await this.shoukaku.getNode()?.rest.resolve(query, options.requester);
+				return await this.shoukaku.options.nodeResolver(this.shoukaku.nodes)?.rest.resolve(query, options.requester);
 			}
-			return await this.shoukaku.getNode()?.rest.resolve(query, options.requester);
+			return await this.shoukaku.options.nodeResolver(this.shoukaku.nodes)?.rest.resolve(query, options.requester);
 		}
 		if (options.engine === 'ShunkoSpotify') return await this.spotify.search(query, options.requester);
 		const engineMap = {
@@ -119,7 +124,7 @@ class Shunko extends EventEmitter {
 			deezer: "dzsearch",
 			yandex: 'ymsearch'
 		};
-		return await this.shoukaku.getNode()?.rest.resolve(`${engineMap[options.engine]}:${query}`);
+		return await this.shoukaku.options.nodeResolver(this.shoukaku.nodes)?.rest.resolve(`${engineMap[options.engine]}:${query}`);
 	}
 
 	/**
@@ -136,7 +141,7 @@ class Shunko extends EventEmitter {
 
 	get(guildId) {
 		return this.players.get(guildId);
-	  }
+	}
 
 	/**
 	 * Add a "unique" listener to an event.
