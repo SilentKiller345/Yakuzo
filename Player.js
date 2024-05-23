@@ -296,6 +296,7 @@ class Player {
 	 * @returns {void}
 	 */
 	destroy() {
+		this.disconnect();
 		this.base_shoukaku.connections.delete(this.guildId);
 		this.shoukaku.removeAllListeners();
 		this.manager.players.delete(this.guildId);

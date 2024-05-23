@@ -1,6 +1,6 @@
 {
   "name": "shunko",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A powerful lavalink wrapper around shoukaku",
   "main": "index.js",
   "scripts": {
