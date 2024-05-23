@@ -67,6 +67,7 @@ class Shunko extends EventEmitter {
 			voiceId: options.voiceId,
 			textId: options.textId,
 			volume: `${options.volume}` || '80',
+			BaseShoukaku: this.shoukaku,
 			ShoukakuPlayer
 		});
 		this.players.set(options.guildId, ShunkoPlayer);

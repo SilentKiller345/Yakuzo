@@ -14,6 +14,8 @@ class Player {
 		/** @type {Shunko} */
 		this.manager = manager;
 
+		this.base_shoukaku = options.BaseShoukaku;
+
 		/** @type {string} */
 		this.guildId = options.guildId;
 
@@ -294,8 +296,7 @@ class Player {
 	 * @returns {void}
 	 */
 	destroy() {
-		this.disconnect();
-		this.shoukaku.destroy();
+		this.base_shoukaku.connections.delete(this.guildId);
 		this.shoukaku.removeAllListeners();
 		this.manager.players.delete(this.guildId);
 		this.manager.emit('playerDestroy', this);
